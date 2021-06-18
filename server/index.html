@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Index page</title>
+  <style>
+    main {
+      width: 80%;
+      max-width: 1024px;
+      margin: auto;
+      padding: 100px 0;
+      text-align: center;
+    }
+    div {
+      padding-top: 30px;
+    }
+    img {
+      width: 300px;
+    }
+  </style>
+</head>
+<body>
+
+  <main>
+    <input id="image-file" type="file" />
+
+    <button id="send-button">Send media</button>
+
+    <div id="preview"></div>
+  </main>
+
+<script type="module">
+  const ENDPOINT = "/api/media"
+
+  document
+    .getElementById("send-button")
+    .addEventListener("click", (event) => {
+      const media_payload = new FormData()
+      media_payload.append("id", Math.random()*1000>>0)
+      media_payload.append("mediafile", document.getElementById("image-file").files[0])
+
+      fetch(ENDPOINT, {
+        method: "POST",
+        body: media_payload,
+      }).then (async res => {
+          if (res.status !== 200) {
+            throw new Error(await res.text())
+          }
+
+          return res
+        })
+        .then(res => res.blob())
+        .then(blob => {
+          const url = URL.createObjectURL(blob);
+          const imgElm = document.createElement("img");
+          imgElm.src = url;
+          
+          document.getElementById("preview").appendChild(imgElm);
+        })
+        .catch(err => console.log(err))
+    })
+</script>
+  
+</body>
+</html>
